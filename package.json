@@ -1,0 +1,21 @@
+{
+  "name": "team-ai-memory",
+  "private": true,
+  "version": "0.0.1",
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "dev:api": "pnpm -F api dev",
+    "dev:web": "pnpm -F web dev",
+    "dev:ext": "pnpm -F extension dev",
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r test",
+    "db:generate": "pnpm -F api db:generate",
+    "db:migrate": "pnpm -F api db:migrate"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0",
+    "@types/node": "^22.0.0"
+  }
+}

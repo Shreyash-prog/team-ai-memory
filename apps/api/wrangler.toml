@@ -1,0 +1,9 @@
+name = "team-ai-memory-api"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Secrets are set via `wrangler secret put <NAME>`, not here.
+# Public env vars (URLs, IDs) go here:
+# [vars]
+# WEB_APP_URL = "https://team-ai-memory.pages.dev"
