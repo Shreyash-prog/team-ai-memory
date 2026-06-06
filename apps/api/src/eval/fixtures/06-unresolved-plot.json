@@ -1,0 +1,19 @@
+{
+  "name": "Brainstorming a novel's ending (left open)",
+  "description": "Stress pattern: unresolved ending. Creative brainstorming. The writer and assistant float three possible endings for a novel and the conversation ends with the writer undecided, several threads open. Tests openThreads.",
+  "conversation": [
+    { "role": "user", "content": "I'm stuck on the ending of my novel. It's literary fiction about two estranged sisters who reunite to sell their late mother's house. I don't know how to end it." },
+    { "role": "assistant", "content": "Endings for estrangement stories usually turn on whether reconciliation is earned. Where are the sisters emotionally by the final act — have they actually changed, or just been forced into proximity?" },
+    { "role": "user", "content": "They've softened but not fully reconciled. The younger one, Mara, wants to keep the house; the older one, Ines, needs the money and wants to sell. That conflict is unresolved going into the last chapter." },
+    { "role": "assistant", "content": "Then the house sale is your pressure valve — the decision about the house can externalize their emotional decision. Three broad directions: they sell and part changed but separate; they find a third option that keeps them bound; or the sale falls through and forces them together. Want to pressure-test each?" },
+    { "role": "user", "content": "Yes. The 'sell and part' one feels honest but maybe too bleak?" },
+    { "role": "assistant", "content": "It's the most literary and least sentimental — bleak isn't bad if the softening landed. The risk is readers feeling the whole reunion was pointless. You'd mitigate that with a final small gesture of grace that signals the relationship changed even though they separate." },
+    { "role": "user", "content": "Hm. What about the 'third option' — like they rent it out together and stay connected through co-ownership?" },
+    { "role": "assistant", "content": "That's warmer and gives an ongoing tie, but co-ownership as a happy ending can read as a tidy bow on a messy wound. It works only if you make the arrangement feel fragile and provisional, not a neat fix. Does your Ines plausibly accept a plan that defers her money need?" },
+    { "role": "user", "content": "Probably not without a cost — she's in real financial trouble. So that ending would need me to resolve her money problem somehow, which feels like a cheat." },
+    { "role": "assistant", "content": "Agreed, manufacturing a windfall would undercut the realism. The third ending, the sale falling through, has a similar danger of feeling like fate intervening rather than the characters choosing. Of the three, the 'sell and part with a gesture of grace' is the only one that doesn't require a contrivance." },
+    { "role": "user", "content": "But I'm attached to them staying connected somehow. Maybe Mara takes a single object from the house — our mother's something — and that's the thread? I genuinely don't know yet." },
+    { "role": "assistant", "content": "That object-as-thread instinct is strong and could attach to any of the three endings — it's a motif, not an ending. I'd suggest deciding the structural ending (sell/third-option/fall-through) first, then layering the object on top. Right now the structural choice is still open." },
+    { "role": "user", "content": "Yeah, I'm not ready to commit. Let me sit with the three and the object idea and come back to it." }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "name": "Choosing a state management approach",
+  "description": "Stress pattern: rejectedPaths. Research/decision-making. The user evaluates and rejects Redux Toolkit and MobX (with specific reasons) before landing on Zustand plus React Query.",
+  "conversation": [
+    { "role": "user", "content": "We're rebuilding our React dashboard and I need to pick a state management story. Team is 4 mid-level devs. What should I be weighing?" },
+    { "role": "assistant", "content": "Main axes: how much truly global client state you have vs server state, the team's familiarity, boilerplate tolerance, and devtools/debuggability. Do you know roughly how much of your state is server data (fetched) versus genuine client UI state?" },
+    { "role": "user", "content": "Honestly like 80% of it is server data — lists, detail records, filters that map to query params. The rest is UI stuff: modals open, a multi-step form, theme." },
+    { "role": "assistant", "content": "That ratio matters a lot. If 80% is server data, a server-cache library (React Query / TanStack Query) handles most of it, and you only need a small client-state tool for the other 20%. That reframes the choice away from 'one big global store.'" },
+    { "role": "user", "content": "I started prototyping with Redux Toolkit since that's the 'safe' default. But even with RTK, wiring slices, thunks, and the provider for what's mostly fetched data felt like a lot of ceremony for the team." },
+    { "role": "assistant", "content": "That's a fair reason to set RTK aside here: it shines when you have complex, interdependent client state and want strict conventions, but for mostly-server-data it adds boilerplate without proportional benefit. RTK Query would help, but at that point you're adopting RTK mainly for its query layer." },
+    { "role": "user", "content": "Then I looked at MobX. The ergonomics are nice, but two of the four devs have never used observables and the 'magic' reactivity worried me for onboarding and debugging." },
+    { "role": "assistant", "content": "Reasonable to reject MobX on team-familiarity grounds — the implicit reactivity is powerful but has a real learning curve, and 'why did this re-render' debugging can be opaque for people new to it. For a mid-level team optimizing for legibility, explicit beats magic." },
+    { "role": "user", "content": "So where does that leave me? I want minimal boilerplate, easy onboarding, and good handling of the server data." },
+    { "role": "assistant", "content": "The combination that fits your constraints: TanStack Query for all the server data (caching, refetch, mutations) and Zustand for the small slice of true client state. Zustand is a tiny, explicit store with almost no boilerplate and a gentle learning curve — closer to plain hooks than Redux." },
+    { "role": "user", "content": "That sounds right. Filters mapping to query params — should those live in Zustand or in the URL?" },
+    { "role": "assistant", "content": "Put filters in the URL (search params) as the source of truth, then derive the query key from them. That gives you shareable/bookmarkable state for free and keeps Zustand focused on ephemeral UI state like open modals and form steps." },
+    { "role": "user", "content": "Great, I'll prototype TanStack Query + Zustand with filters in the URL and report back to the team." }
+  ]
+}

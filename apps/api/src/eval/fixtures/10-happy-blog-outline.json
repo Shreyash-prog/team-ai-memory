@@ -1,0 +1,19 @@
+{
+  "name": "Outlining a blog post (collaborative, resolved)",
+  "description": "Stress pattern: happy-path baseline. Writing/editing. A clean collaborative session that produces a finished outline for a blog post about onboarding remote engineers. No pivots, rejected paths, or open threads.",
+  "conversation": [
+    { "role": "user", "content": "Help me outline a blog post. Topic: how we onboard remote engineers in their first 30 days. Audience is engineering managers at other startups." },
+    { "role": "assistant", "content": "Great topic. A strong shape for that audience is problem → system → specifics → outcomes. Want me to draft a skeleton along those lines, or do you already have sections in mind?" },
+    { "role": "user", "content": "Draft a skeleton, I'll react to it." },
+    { "role": "assistant", "content": "Here's a skeleton:\n1. The cost of bad remote onboarding (hook + stakes)\n2. Our principle: structure beats osmosis\n3. Week 1: environment, access, first PR\n4. Weeks 2–3: scoped ownership of a real feature\n5. Week 4: feedback loop and ramp check\n6. What we measure (time-to-first-PR, 30-day confidence survey)\n7. Takeaways for other managers" },
+    { "role": "user", "content": "I like it. The hook feels generic though — can we open with a concrete number instead?" },
+    { "role": "assistant", "content": "Sure. Open section 1 with a stat or internal metric, e.g. 'Before we systematized onboarding, our new remote hires took 6 weeks to ship their first meaningful PR. Now it's 9 days.' A concrete before/after immediately earns attention. Do you have a real number like that?" },
+    { "role": "user", "content": "Yes — it was about 5 weeks before, and now it's around 8 days. Let's use those." },
+    { "role": "assistant", "content": "Then section 1 opens: 'Our remote hires used to take five weeks to ship their first meaningful PR. Now they take eight days. Here's the system that changed it.' That sets up the rest of the post as the payoff." },
+    { "role": "user", "content": "Love that. Should the 'what we measure' section come earlier? Managers care about metrics." },
+    { "role": "assistant", "content": "You can fold a one-line metric callout into each week's section (so metrics are woven through), and keep section 6 as the consolidated dashboard view. That way metric-hungry readers get signal throughout and a summary at the end. Want me to adjust the skeleton to reflect that?" },
+    { "role": "user", "content": "Yes, weave a metric line into each week and keep the summary. That's the final structure." },
+    { "role": "assistant", "content": "Final outline:\n1. Hook: five weeks → eight days to first PR\n2. Principle: structure beats osmosis\n3. Week 1: environment, access, first PR (metric: time-to-first-PR)\n4. Weeks 2–3: scoped ownership (metric: first feature shipped)\n5. Week 4: feedback + ramp check (metric: 30-day confidence survey)\n6. Consolidated metrics dashboard\n7. Takeaways for other managers\n\nThat's a complete, ready-to-draft outline." },
+    { "role": "user", "content": "Perfect, that's exactly what I needed. I'll start drafting from this." }
+  ]
+}

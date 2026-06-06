@@ -1,0 +1,18 @@
+{
+  "name": "Choosing a Postgres index type (clean Q&A)",
+  "description": "Stress pattern: happy-path baseline. Research. A straightforward, well-resolved technical Q&A that lands on a clear recommendation (GIN index for the JSONB containment query). No pivots, no rejected paths, no open threads.",
+  "conversation": [
+    { "role": "user", "content": "I have a Postgres table of events with a JSONB column `payload`. Queries filter with `payload @> '{...}'` containment. What index should I use?" },
+    { "role": "assistant", "content": "For the `@>` containment operator on JSONB, a GIN index is the right choice. A plain B-tree won't help containment queries. Create it with `CREATE INDEX ON events USING GIN (payload);`." },
+    { "role": "user", "content": "There's also a `jsonb_path_ops` variant I've seen mentioned. What's the difference?" },
+    { "role": "assistant", "content": "`USING GIN (payload jsonb_path_ops)` builds a smaller, faster index but only supports the containment operators (@>, etc.), not key-existence operators (?, ?|, ?&). If all you do is @> containment, jsonb_path_ops is the better pick — smaller and faster for that case." },
+    { "role": "user", "content": "We only ever use @> containment, never the key-existence operators." },
+    { "role": "assistant", "content": "Then go with `CREATE INDEX ON events USING GIN (payload jsonb_path_ops);`. You'll get a more compact index optimized exactly for your query pattern." },
+    { "role": "user", "content": "Roughly how much slower are writes with a GIN index? This table is write-heavy." },
+    { "role": "assistant", "content": "GIN indexes do add write overhead since each insert updates the index. Postgres mitigates this with the `fastupdate` setting (on by default), which buffers index entries in a pending list and flushes them in batches. For write-heavy tables that's usually enough; you can tune `gin_pending_list_limit` if flush pauses become noticeable." },
+    { "role": "user", "content": "Good. Should I worry about the pending list making reads stale?" },
+    { "role": "assistant", "content": "No — reads still see correct results. When a query runs, Postgres scans both the main index and the pending list, so containment queries return complete results even before a flush. The pending list is a performance mechanism, not a consistency tradeoff." },
+    { "role": "user", "content": "Perfect, that answers everything. I'll create the jsonb_path_ops GIN index and leave fastupdate on." },
+    { "role": "assistant", "content": "Sounds like the right setup for a write-heavy, containment-only workload. The jsonb_path_ops GIN index with fastupdate enabled gives you fast @> reads with manageable write overhead." }
+  ]
+}

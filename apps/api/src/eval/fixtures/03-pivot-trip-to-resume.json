@@ -1,0 +1,20 @@
+{
+  "name": "Conference trip planning that pivots to resume prep",
+  "description": "Stress pattern: mid-conversation pivot. Planning then career. Starts as logistics for a conference trip, then the user explicitly drops it to get help tailoring their resume for a job they spotted. Tests whether extraction focuses on the resume thread, not the abandoned travel one.",
+  "conversation": [
+    { "role": "user", "content": "I'm going to a design conference in Lisbon next month. Can you help me think through the trip — flights, where to stay, how many days?" },
+    { "role": "assistant", "content": "Happy to. When are the conference dates, and are you going purely for the talks or also to explore the city? That changes whether you book tight around the sessions or add buffer days." },
+    { "role": "user", "content": "Conference is the 14th–16th. I'd add a couple days. Probably fly in the 13th, out the 18th." },
+    { "role": "assistant", "content": "So five nights. For a talks-plus-exploring trip, staying central (Baixa or Chiado) keeps you walkable to most venues and evenings out. Want me to sketch a rough day-by-day once you confirm the venue location?" },
+    { "role": "user", "content": "Actually — let me put the trip aside for now, something more urgent came up. At the conference's job board I saw a Senior Product Designer role at a fintech called Meridian and I really want it. Can you help me tailor my resume?" },
+    { "role": "assistant", "content": "Absolutely, let's focus on that. To tailor effectively I need two things: the parts of the Meridian job description that matter most to you, and your current resume's relevant experience. What does the posting emphasize?" },
+    { "role": "user", "content": "It emphasizes design systems ownership, working closely with engineers, and experience in regulated/fintech environments. My background is mostly consumer apps, with one year at a healthtech startup." },
+    { "role": "assistant", "content": "Good — healthtech is regulated, so lean into that hard; it's your bridge to 'fintech-adjacent compliance awareness.' For design systems, do you have a concrete example where you owned or significantly built one? Ownership stories beat 'contributed to.'" },
+    { "role": "user", "content": "Yes — at the healthtech startup I built their component library from scratch in Figma and shipped it with the front-end team. At my current consumer job I mostly maintain an existing system." },
+    { "role": "assistant", "content": "Then your healthtech bullet should be the headline of your experience section for this application: 'Built and shipped the company's first design system from scratch, partnering directly with front-end engineers.' That hits design-systems ownership AND eng collaboration AND regulated-industry in one line." },
+    { "role": "user", "content": "I like that. The role is also remote-friendly but prefers candidates who can travel to Lisbon quarterly. I can do that. Should that go on the resume?" },
+    { "role": "assistant", "content": "Not on the resume — keep that for the cover letter or application form, where 'available for quarterly on-site in Lisbon' reads as enthusiasm rather than clutter. Keep the resume focused on the systems-ownership and eng-collaboration narrative." },
+    { "role": "user", "content": "Makes sense. Let's rewrite my top three bullets around that narrative." },
+    { "role": "assistant", "content": "Send me your current top three bullets verbatim and I'll rework each to foreground ownership, engineer collaboration, and regulated-industry experience." }
+  ]
+}

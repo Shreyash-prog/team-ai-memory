@@ -1,0 +1,19 @@
+{
+  "name": "Debugging a flaky CI test",
+  "description": "Stress pattern: rejectedPaths. Coding/debugging. The user tries three different fixes (raise timeout, add retry, fake timers) and rejects each before finding the real root cause (shared module-level state between tests).",
+  "conversation": [
+    { "role": "user", "content": "One of my Jest tests passes locally but fails about 1 in 5 runs in CI. It's a test for a `RateLimiter` class. The assertion that fails is `expect(limiter.isAllowed()).toBe(false)` after we exhaust the budget." },
+    { "role": "assistant", "content": "Flaky 1-in-5 failures usually point at timing or shared state. A few questions: does the RateLimiter use timestamps or timers internally, and do your tests run in parallel? Also, is `isAllowed()` time-dependent (e.g. a sliding window)?" },
+    { "role": "user", "content": "It's a sliding window using Date.now(). My first thought was that CI is just slower, so I bumped the test timeout from 5s to 20s. Didn't help, still flaky." },
+    { "role": "assistant", "content": "Right — a longer timeout only helps if the test was being killed for running long, which isn't your symptom. The failure is a wrong value, not a hang. So the timeout change wouldn't address it. Let's look at the time dependence instead." },
+    { "role": "user", "content": "Okay, I reverted the timeout. Next I wrapped the flaky test in jest.retryTimes(3) so it retries on failure. That made CI green, but it feels like I'm hiding something." },
+    { "role": "assistant", "content": "You are — retryTimes masks the flake rather than fixing it, and it'll rot: the next person sees a green build and assumes the limiter is correct. I'd pull that out and keep digging. Can you paste how the window boundary is computed?" },
+    { "role": "user", "content": "Sure: it keeps an array of request timestamps and filters out any older than windowMs before counting. I tried mocking time with jest.useFakeTimers() and advancing the clock, thinking the real clock was the problem." },
+    { "role": "assistant", "content": "Fake timers are reasonable for determinism, but if Date.now() inside the class isn't going through the mocked timer source, useFakeTimers won't affect it depending on your Jest version and config. Did the flake actually go away with fake timers, or did the behavior change?" },
+    { "role": "user", "content": "It didn't go away, and weirdly the failure rate went UP when I ran the whole file versus running that one test alone. Running it in isolation it always passes." },
+    { "role": "assistant", "content": "That's the key clue. 'Passes alone, fails in the suite' almost always means shared state across tests, not timing. Is the RateLimiter a singleton, or is there any module-level instance the tests reuse?" },
+    { "role": "user", "content": "...yeah. There's a `const limiter = new RateLimiter(...)` exported at module top-level and three tests import it. So earlier tests are leaving requests in the window." },
+    { "role": "assistant", "content": "That's the root cause. Test order (and parallelism) changes how many requests are already recorded, so the budget math differs run to run. Fix: construct a fresh RateLimiter in a beforeEach, or expose a reset() and call it. Drop the retryTimes and fake-timer changes once that's in." },
+    { "role": "user", "content": "Moving it into beforeEach fixed it — 50 CI runs, all green. I'll add a reset() too for the production singleton." }
+  ]
+}
