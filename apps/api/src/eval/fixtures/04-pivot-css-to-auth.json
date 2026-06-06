@@ -1,0 +1,19 @@
+{
+  "name": "CSS layout question that pivots to an auth bug",
+  "description": "Stress pattern: mid-conversation pivot. Coding. Begins with a CSS grid alignment issue, then the user sets it aside for a more serious bug: users getting logged out randomly due to token refresh. Tests focus on the auth thread.",
+  "conversation": [
+    { "role": "user", "content": "I have a CSS grid where the last row's items won't stretch to fill the height. I'm using grid-template-rows: repeat(3, auto). How do I make the rows equal height?" },
+    { "role": "assistant", "content": "`auto` sizes rows to content. For equal heights use `repeat(3, 1fr)` so each row takes an equal fraction of the container's height — assuming the grid container itself has a defined height. Does the container have a height set?" },
+    { "role": "user", "content": "Ah, the container height was the issue — it was shrink-to-fit. Let me set that and try 1fr." },
+    { "role": "assistant", "content": "That should do it. With a fixed/percentage container height and 1fr rows, the three rows will divide the space evenly and items can stretch via align-items: stretch (the default)." },
+    { "role": "user", "content": "Okay that's sorted, thanks. Honestly let's drop the CSS — I have a way bigger fire. Our users are getting randomly logged out mid-session and support tickets are piling up. I need to figure out why." },
+    { "role": "assistant", "content": "Let's switch to that. Random logouts usually trace to token lifetime or refresh handling. What's your auth setup — JWT access tokens with refresh tokens, session cookies, something else? And roughly how long until a user gets kicked?" },
+    { "role": "user", "content": "JWT access token with a 15-minute expiry, plus a refresh token. The logouts seem to happen around the 15-minute mark, so I suspect the refresh isn't firing." },
+    { "role": "assistant", "content": "Strong signal that refresh is failing or racing. Two common culprits: (1) the refresh call only triggers on a 401 but multiple in-flight requests each try to refresh and clobber each other, or (2) the refresh token is being rotated and a stale one gets reused. Do you refresh proactively before expiry or reactively on 401?" },
+    { "role": "user", "content": "Reactively — on a 401 we call /refresh, then retry. And yes, when the app makes several API calls at once, I think they all 401 and all hit /refresh simultaneously." },
+    { "role": "assistant", "content": "That's likely it. If you rotate refresh tokens, the first /refresh invalidates the old token; the concurrent /refresh calls then send the now-invalid token, get rejected, and the app logs the user out. Fix: a single-flight refresh — queue concurrent 401s behind one in-progress refresh and have them await its result." },
+    { "role": "user", "content": "That matches the pattern exactly. Is proactive refresh better than fixing the single-flight issue?" },
+    { "role": "assistant", "content": "Do the single-flight fix regardless — it's the correctness fix. Proactive refresh (refreshing at ~80% of token lifetime) is a nice latency optimization on top, but it doesn't remove the need to handle concurrent 401s safely. Start with single-flight." },
+    { "role": "user", "content": "Got it. I'll implement a single-flight refresh queue and verify the concurrent-request case in staging." }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "name": "Picking a date library with unstated constraints",
+  "description": "Stress pattern: implicit preferences/constraints. Coding. The user never says 'my constraint is' but implies (a) a hard bundle-size limit the team enforces, (b) a preference for zero new runtime dependencies, and (c) TypeScript-first. Tests whether extraction surfaces implicit preferences/constraints.",
+  "conversation": [
+    { "role": "user", "content": "I need to do some date math in our web app — parsing, adding days, formatting in the user's timezone. People keep suggesting moment.js. Thoughts?" },
+    { "role": "assistant", "content": "moment.js works but it's in maintenance mode and it's large and mutable. Modern options: date-fns (tree-shakeable functions), Day.js (tiny, moment-like API), Luxon (great timezone support), or the built-in Intl.DateTimeFormat plus Temporal where available. What matters most for you — size, timezone handling, or API ergonomics?" },
+    { "role": "user", "content": "Our marketing site lead bounces any PR that adds more than 10KB gzipped to the main bundle, so moment is a non-starter — it's huge." },
+    { "role": "assistant", "content": "Right, moment is ~70KB+ and not tree-shakeable, so it'd blow that budget instantly. date-fns or Day.js fit far better — Day.js is ~2KB core, date-fns lets you import only the functions you use. Both keep you well under 10KB if you're careful with what you pull in." },
+    { "role": "user", "content": "Timezone formatting is the part I actually care about. We show timestamps in the viewer's local zone." },
+    { "role": "assistant", "content": "For viewer-local formatting you may not need a library at all — Intl.DateTimeFormat with the user's resolved timezone handles localized formatting natively, zero bytes added. Libraries earn their keep more for cross-timezone conversion and arithmetic than for 'format in local zone.'" },
+    { "role": "user", "content": "Oh interesting. I'd honestly rather not pull in another package if the platform can do it — every dependency is something the team has to keep patched." },
+    { "role": "assistant", "content": "Then lean on built-ins: Intl.DateTimeFormat for formatting, and the Date object (or Temporal where your targets support it) for the add-days arithmetic. That adds nothing to the bundle and nothing to your dependency surface. The one caveat is DST-safe arithmetic, which native Date handles awkwardly." },
+    { "role": "user", "content": "How bad is the DST issue in practice? Our adds are usually 'add N days to a date' for things like trial expiry." },
+    { "role": "assistant", "content": "For 'add N days' on UTC-stored timestamps it's fine — do the arithmetic in UTC and only convert to local at display time. DST bites you mainly when you add days to a local wall-clock time and expect the wall-clock to stay fixed. If your trial dates are UTC under the hood, you're safe with native Date." },
+    { "role": "user", "content": "They are UTC in the DB. And it'd need to be typed cleanly — half-typed helpers drive me up the wall in our codebase." },
+    { "role": "assistant", "content": "Then write a small, fully-typed utils/date.ts: functions like addDays(date: Date, n: number): Date and formatLocal(date: Date, tz: string): string wrapping Intl. You get strict types, zero dependencies, no bundle cost, and DST-safe behavior since you operate in UTC. Want me to sketch that module?" },
+    { "role": "user", "content": "Yes please, sketch addDays and formatLocal with proper types." },
+    { "role": "assistant", "content": "I'll write a typed utils/date.ts with addDays(date, n) doing UTC-based arithmetic and formatLocal(date, timeZone) using Intl.DateTimeFormat, both fully typed with no external imports." }
+  ]
+}

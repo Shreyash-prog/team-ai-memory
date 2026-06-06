@@ -1,0 +1,21 @@
+{
+  "name": "Drafting an email with implicit tone preferences and a deadline",
+  "description": "Stress pattern: implicit preferences/constraints. Writing/editing. Through edits the user reveals a preference for short, no-emoji, no-exclamation tone and a hard constraint (must send before Friday's board meeting) without ever labeling them as preferences or constraints. Tests implicit extraction.",
+  "conversation": [
+    { "role": "user", "content": "Help me write an email to my team announcing that we're delaying the v2 launch by three weeks." },
+    { "role": "assistant", "content": "Sure. Here's a first draft:\n\n'Hi team! 🎉 Big update — we've decided to push our v2 launch by three weeks so we can really nail the quality. I'm so excited about what this extra time will let us do!! Thanks for all your hard work!'\n\nWant me to adjust anything?" },
+    { "role": "user", "content": "Cut the emoji and the exclamation points. This is a delay, not a celebration." },
+    { "role": "assistant", "content": "Understood:\n\n'Hi team, an update: we've decided to push the v2 launch by three weeks to ensure quality. I appreciate the work everyone has put in, and I'll share a revised timeline shortly.'\n\nBetter?" },
+    { "role": "user", "content": "Closer. It's still a bit long and soft. Get to the point faster — people skim." },
+    { "role": "assistant", "content": "Tightened:\n\n'Team — we're moving the v2 launch out by three weeks to address quality issues. A revised timeline follows this week. Thank you for the effort so far.'\n\nThat's three sentences. Want it even shorter?" },
+    { "role": "user", "content": "That length is good. One thing — say specifically that the new target is the week of the 28th, not just 'three weeks.'" },
+    { "role": "assistant", "content": "'Team — we're moving the v2 launch to the week of the 28th to address quality issues. A full revised timeline follows this week. Thank you for the effort so far.'" },
+    { "role": "user", "content": "Good. I need this to go out before our board meeting Friday morning since they'll ask about the timeline and I want the team to hear it from me first." },
+    { "role": "assistant", "content": "Makes sense to have the team informed ahead of the board. So the email should land by Thursday end-of-day at the latest, giving people time to read it before Friday morning. Do you want me to add a line inviting questions, or keep it purely informational?" },
+    { "role": "user", "content": "Keep it informational. If I invite questions in writing I'll get twenty replies; I'd rather field them in standup." },
+    { "role": "assistant", "content": "Then we'll leave it as the clean three-sentence version and you can take questions live in standup. Final:\n\n'Team — we're moving the v2 launch to the week of the 28th to address quality issues. A full revised timeline follows this week. Thank you for the effort so far.'" },
+    { "role": "user", "content": "That's the one. I'll schedule it for Thursday afternoon." },
+    { "role": "assistant", "content": "Sounds good — Thursday afternoon gets it in front of the team well before the Friday board meeting. Want me to draft the revised-timeline follow-up next so it's ready to send this week as promised?" },
+    { "role": "user", "content": "Not yet, I need to finalize the dates first. I'll come back for that." }
+  ]
+}

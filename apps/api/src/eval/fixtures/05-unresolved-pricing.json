@@ -1,0 +1,19 @@
+{
+  "name": "SaaS pricing model deliberation (no decision reached)",
+  "description": "Stress pattern: unresolved ending. Planning/strategy. The team debates per-seat vs usage-based vs tiered pricing and ends with several explicit open questions and no decision. Tests the openThreads layer.",
+  "conversation": [
+    { "role": "user", "content": "We're about to launch our API analytics product and I can't settle on a pricing model. Per-seat, usage-based, or tiered? It's sold to engineering teams." },
+    { "role": "assistant", "content": "Good question to get right early. Quick framing: per-seat aligns with team size, usage-based aligns with value delivered (and your costs), tiered is easiest for buyers to reason about. What does your cost structure look like — is your COGS driven by usage (events processed) or roughly fixed per customer?" },
+    { "role": "user", "content": "COGS is mostly events processed — we ingest and store a lot. So our costs scale with usage, not seats." },
+    { "role": "assistant", "content": "Then pure per-seat is risky: a small team sending huge event volume could be unprofitable. Usage-based aligns price with cost, but engineering buyers often dislike unpredictable bills. A common answer is tiered-by-usage with seat-unlimited within a tier." },
+    { "role": "user", "content": "The unpredictable-bill fear is real — we've heard it from two design partners. But tiers feel arbitrary; how would we even set the thresholds?" },
+    { "role": "assistant", "content": "Thresholds usually come from your usage data: look at the distribution of events/month across your design partners and current trials, then set tier boundaries so most land comfortably inside a tier with headroom. Do you have that usage distribution yet?" },
+    { "role": "user", "content": "Only partially — we have data for 6 design partners but they're not representative; they're all mid-size. We don't have small or enterprise signal yet." },
+    { "role": "assistant", "content": "That's a real gap. Setting tiers off six non-representative accounts risks miscalibrated boundaries. One option is to launch with a single usage-based plan plus a soft cap and gather distribution data for a quarter before introducing tiers." },
+    { "role": "user", "content": "Maybe. But sales wants a clear price they can quote on a call, and 'usage-based, we'll see' doesn't sell well to a VP of Eng." },
+    { "role": "assistant", "content": "That tension between data-readiness and sales-legibility is the crux. You could quote a representative monthly price (a 'most teams pay ~$X') while billing on usage underneath — but that only works if your usage variance isn't wild. Do you know the variance across the six partners?" },
+    { "role": "user", "content": "It's wide — the heaviest partner uses about 8x the lightest. So a single quoted number would be pretty misleading." },
+    { "role": "assistant", "content": "Then we're genuinely stuck between three unresolved things: you don't have representative usage data to set tiers, sales needs a quotable price, and your 8x variance makes a single number misleading. Those need answers before the model can be chosen." },
+    { "role": "user", "content": "Yeah. I think I need to take this back to the founders — we haven't aligned on whether we optimize for sales simplicity or margin protection at launch. Let me park it there for now." }
+  ]
+}
