@@ -1,11 +1,20 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { RouterProvider } from '@tanstack/react-router';
+import { router } from './router';
+import './index.css';
 
-const App = () => (
-  <div style={{ padding: 32, fontFamily: 'system-ui' }}>
-    <h1>Team AI Memory</h1>
-    <p>Skeleton up. Milestone 1 starts soon.</p>
-  </div>
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { staleTime: 30_000, refetchOnWindowFocus: false },
+  },
+});
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
+  </React.StrictMode>
 );
-
-ReactDOM.createRoot(document.getElementById('root')!).render(<App />);
