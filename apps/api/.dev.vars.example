@@ -1,0 +1,5 @@
+# Local secrets for `wrangler dev` (the Worker reads these as c.env.*).
+# Copy to `.dev.vars` (gitignored) and fill in real values. In production these
+# are set as Wrangler secrets: `wrangler secret put DATABASE_URL`, etc.
+DATABASE_URL="postgresql://USER:PASSWORD@HOST.neon.tech/DBNAME?sslmode=require"
+ANTHROPIC_API_KEY="sk-ant-..."
