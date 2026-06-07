@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-06T23:48:15.256Z",
+  "generatedAt": "2026-06-07T00:06:40.165Z",
   "model": "claude-haiku-4-5",
   "results": [
     {
@@ -7,52 +7,53 @@
       "name": "Debugging a flaky CI test",
       "description": "Stress pattern: rejectedPaths. Coding/debugging. The user tries three different fixes (raise timeout, add retry, fake timers) and rejects each before finding the real root cause (shared module-level state between tests).",
       "turns": 13,
-      "latencyMs": 5918,
+      "latencyMs": 6501,
       "usage": {
-        "inputTokens": 2253,
-        "outputTokens": 739,
+        "inputTokens": 2456,
+        "outputTokens": 776,
         "cacheReadInputTokens": 0,
         "cacheCreationInputTokens": 0
       },
-      "costUsd": 0.005948,
+      "costUsd": 0.006336,
       "ir": {
         "version": "1",
-        "capturedAt": "2026-06-06T23:47:18.515Z",
+        "capturedAt": "2026-06-07T00:05:40.042Z",
         "source": {
           "platform": "chatgpt",
-          "inferredTopic": "Fixing flaky Jest RateLimiter test with shared state"
+          "inferredTopic": "Flaky Jest test for RateLimiter caused by shared state"
         },
         "factualState": [
           "RateLimiter class uses sliding window with Date.now() to track request timestamps",
-          "Test was failing ~1 in 5 runs in CI; assertion: expect(limiter.isAllowed()).toBe(false) after budget exhaustion",
-          "Root cause: RateLimiter instance exported at module top-level; three tests import and reuse the same instance",
-          "Shared state across tests caused budget math to differ run-to-run depending on test execution order and parallelism",
-          "Solution: moved RateLimiter instantiation into beforeEach block; verified with 50 CI runs, all green",
-          "Plan to add reset() method to production singleton for test isolation"
+          "Test was intermittently failing (~1 in 5 runs in CI) on assertion expect(limiter.isAllowed()).toBe(false)",
+          "Root cause identified: RateLimiter instance was defined at module top-level (const limiter = new RateLimiter(...)) and shared across three tests",
+          "Earlier tests were leaving requests in the window, causing budget math to differ across test runs",
+          "Solution implemented: moved RateLimiter construction into beforeEach block to create fresh instance per test",
+          "After fix, 50 CI runs passed consistently",
+          "Plan to add reset() method for production singleton usage"
         ],
         "openThreads": [
-          "Implement reset() method in RateLimiter production code for future test use"
+          "Implement reset() method on RateLimiter class for production singleton usage"
         ],
         "rejectedPaths": [
           {
             "tried": "Increased test timeout from 5s to 20s",
-            "whyFailed": "Flakiness was a wrong assertion value, not a hang; timeout change had no effect"
+            "whyFailed": "Flake was not due to test timing out but to wrong assertion value; timeout increase did not address the actual problem"
           },
           {
-            "tried": "jest.retryTimes(3) to mask the flaky test",
-            "whyFailed": "Masked the problem rather than fixing it; hides the real issue from future maintainers"
+            "tried": "Wrapped flaky test in jest.retryTimes(3)",
+            "whyFailed": "Masked the underlying issue rather than fixing it; masks the real problem for future maintainers who see green CI"
           },
           {
-            "tried": "jest.useFakeTimers() to control clock and eliminate real-time dependencies",
-            "whyFailed": "Failure rate actually increased when running whole file vs. isolated test; fake timers not the root cause"
+            "tried": "Mocked time with jest.useFakeTimers() and advancing the clock",
+            "whyFailed": "Did not resolve the flake; failure rate actually increased when running full test file versus in isolation, indicating the problem was not timing but shared state"
           }
         ],
         "preferences": [
-          "Prefer fixing root cause over masking flaky tests with retries",
-          "Isolate test fixtures (fresh instances per test) rather than relying on shared module-level state"
+          "Avoid masking test failures with retry mechanisms; prefer diagnosing and fixing root cause",
+          "Use fresh instances in beforeEach rather than module-level singletons for test isolation"
         ],
         "constraints": [
-          "Test must be stable across 50+ CI runs"
+          "RateLimiter window calculation depends on Date.now() and must filter timestamps older than windowMs correctly"
         ],
         "lastExchange": [
           {
@@ -71,60 +72,58 @@
       "name": "Choosing a state management approach",
       "description": "Stress pattern: rejectedPaths. Research/decision-making. The user evaluates and rejects Redux Toolkit and MobX (with specific reasons) before landing on Zustand plus React Query.",
       "turns": 13,
-      "latencyMs": 6059,
+      "latencyMs": 6483,
       "usage": {
-        "inputTokens": 2202,
-        "outputTokens": 765,
+        "inputTokens": 2405,
+        "outputTokens": 805,
         "cacheReadInputTokens": 0,
         "cacheCreationInputTokens": 0
       },
-      "costUsd": 0.006027,
+      "costUsd": 0.00643,
       "ir": {
         "version": "1",
-        "capturedAt": "2026-06-06T23:47:24.581Z",
+        "capturedAt": "2026-06-07T00:05:46.535Z",
         "source": {
           "platform": "chatgpt",
-          "inferredTopic": "React dashboard state management architecture decision"
+          "inferredTopic": "Selecting state management for React dashboard rebuild"
         },
         "factualState": [
-          "Team size: 4 mid-level developers",
-          "State composition: ~80% server data (lists, detail records, filters), ~20% client UI state (modals, multi-step form, theme)",
-          "Decided stack: TanStack Query for server data + Zustand for client state",
-          "Filters architecture: stored in URL search params as source of truth, not in Zustand",
-          "Query keys derived from URL filter params",
-          "Zustand reserved for ephemeral UI state: modal open/close, multi-step form progress, theme selection"
+          "Team: 4 mid-level React developers",
+          "Dashboard state composition: ~80% server data (lists, detail records, query-param filters), ~20% UI state (modals, multi-step form, theme)",
+          "Decision: TanStack Query + Zustand as primary stack",
+          "Rejected Redux Toolkit prototype because it added ceremony without proportional benefit for mostly-fetched data",
+          "Rejected MobX due to team unfamiliarity with observables and concerns about opacity when debugging reactivity",
+          "Filters will live in URL (search params) as source of truth, derived to query key for TanStack Query",
+          "Ephemeral UI state (modals, form steps, theme) designated for Zustand"
         ],
         "openThreads": [
-          "Prototype TanStack Query + Zustand implementation with URL-based filters",
-          "Present prototype and decision rationale to team for feedback",
-          "Validate team comfort with Zustand ergonomics vs Redux Toolkit"
+          "Prototype TanStack Query + Zustand with URL-based filters and report back to team for feedback",
+          "Implementation details pending: how to structure query keys from URL params, URL sync patterns with Zustand"
         ],
         "rejectedPaths": [
           {
-            "tried": "Redux Toolkit (RTK)",
-            "whyFailed": "Too much boilerplate and ceremony (slices, thunks, provider) for a mostly server-data workload; RTK Query would be needed for server data, making the core RTK adoption unnecessary"
+            "tried": "Redux Toolkit for state management",
+            "whyFailed": "Too much boilerplate (slices, thunks, provider setup) for a codebase that is 80% server-fetched data with minimal interdependent client state; RTK Query would be added complexity when TanStack Query is a better fit"
           },
           {
-            "tried": "MobX",
-            "whyFailed": "Two of four developers unfamiliar with observables; implicit magic reactivity creates onboarding friction and opacity in debugging ('why did this re-render') for a mid-level team"
+            "tried": "MobX for state management",
+            "whyFailed": "Two of four team members lack observables experience; implicit reactivity magic creates onboarding friction and makes debugging re-renders opaque for mid-level developers unfamiliar with the pattern"
           }
         ],
         "preferences": [
-          "Minimal boilerplate",
+          "Minimal boilerplate and ceremony",
           "Easy onboarding for mid-level team",
-          "Good server data handling and caching",
-          "Explicit reactivity over implicit magic",
-          "Legibility as priority for team collaboration"
+          "Explicit over implicit/magical patterns",
+          "Good debuggability and legibility"
         ],
         "constraints": [
-          "Team has 4 mid-level developers; some unfamiliar with advanced patterns",
-          "80% of state is server-sourced data (lists, detail records, filters)",
-          "Must support filters that map to query params and maintain shareable/bookmarkable URLs"
+          "Must handle server data caching and mutation patterns effectively (80% of state)",
+          "Must work with team of 4 mid-level developers unfamiliar with advanced patterns like observables"
         ],
         "lastExchange": [
           {
             "role": "user",
-            "content": "Filters mapping to query params — should those live in Zustand or in the URL?"
+            "content": "That sounds right. Filters mapping to query params — should those live in Zustand or in the URL?"
           },
           {
             "role": "assistant",
@@ -142,52 +141,53 @@
       "name": "Conference trip planning that pivots to resume prep",
       "description": "Stress pattern: mid-conversation pivot. Planning then career. Starts as logistics for a conference trip, then the user explicitly drops it to get help tailoring their resume for a job they spotted. Tests whether extraction focuses on the resume thread, not the abandoned travel one.",
       "turns": 14,
-      "latencyMs": 5522,
+      "latencyMs": 8054,
       "usage": {
-        "inputTokens": 2159,
-        "outputTokens": 628,
+        "inputTokens": 2362,
+        "outputTokens": 723,
         "cacheReadInputTokens": 0,
         "cacheCreationInputTokens": 0
       },
-      "costUsd": 0.005299,
+      "costUsd": 0.005977,
       "ir": {
         "version": "1",
-        "capturedAt": "2026-06-06T23:47:30.104Z",
+        "capturedAt": "2026-06-07T00:05:54.592Z",
         "source": {
           "platform": "chatgpt",
-          "inferredTopic": "Tailoring resume for Meridian fintech Product Designer role"
+          "inferredTopic": "Tailor resume for Meridian fintech Senior Product Designer role"
         },
         "factualState": [
-          "Target role: Senior Product Designer at fintech company Meridian",
-          "Role emphasizes: design systems ownership, engineer collaboration, regulated/fintech environment experience",
-          "User's relevant background: one year at healthtech startup (regulated), current role at consumer apps company",
-          "Key achievement: built and shipped component library from scratch in Figma at healthtech startup in partnership with front-end team",
-          "Current role: maintaining existing design system at consumer company",
-          "Meridian role is remote-friendly but prefers quarterly on-site travel to Lisbon",
-          "Strategy: lead with healthtech design-systems ownership bullet highlighting both ownership and eng collaboration",
-          "Resume focus: systems ownership and engineer collaboration narrative",
-          "Travel availability (Lisbon quarterly) should go in cover letter/application form, not on resume"
+          "Target role: Senior Product Designer at Meridian (fintech company)",
+          "Job posting emphasizes: design systems ownership, close collaboration with engineers, regulated/fintech environment experience",
+          "User's background: mostly consumer apps, one year at healthtech startup (regulated industry), currently at consumer job",
+          "Key experience: built and shipped first design system from scratch at healthtech startup in Figma, partnered with front-end engineers; maintains existing design system at current consumer role",
+          "Meridian role is remote-friendly but prefers quarterly travel to Lisbon",
+          "Resume strategy: lead with healthtech design-systems ownership bullet that hits three narrative points (ownership + eng collaboration + regulated industry)",
+          "Quarterly Lisbon travel availability should go in cover letter/application form, not resume"
         ],
         "openThreads": [
-          "User needs to provide current top three bullets verbatim for rewriting",
-          "Pending rewrite of top three resume bullets to foreground ownership, engineer collaboration, and regulated-industry experience"
+          "User is expected to send current top three resume bullets verbatim for reworking",
+          "Rewrite top three bullets to foreground ownership, engineer collaboration, and regulated-industry experience",
+          "Final resume needs to be tailored and ready for Meridian application"
         ],
-        "rejectedPaths": [
-          {
-            "tried": "Including quarterly Lisbon travel requirement on resume",
-            "whyFailed": "Better suited for cover letter or application form where it reads as enthusiasm; would clutter the resume"
-          }
-        ],
+        "rejectedPaths": [],
         "preferences": [
-          "Focus resume on concrete ownership examples rather than contributions",
-          "Highlight partnerships with engineers and cross-functional collaboration",
-          "Lean into regulated-industry compliance experience as bridge to fintech"
+          "Focus resume on concrete narrative (systems ownership, eng collaboration, regulated-industry) rather than clutter",
+          "Keep 'nice-to-have' logistics (Lisbon travel) off resume, save for cover letter"
         ],
         "constraints": [
-          "Resume rewrite must fit Meridian's three core job posting emphases: design systems ownership, engineer collaboration, fintech/regulated experience",
-          "Top three bullets are the priority section to rewrite"
+          "Resume must highlight regulated-industry experience to bridge gap from consumer apps to fintech",
+          "Must emphasize design-systems ownership, not just contribution"
         ],
         "lastExchange": [
+          {
+            "role": "user",
+            "content": "I like that. The role is also remote-friendly but prefers candidates who can travel to Lisbon quarterly. I can do that. Should that go on the resume?"
+          },
+          {
+            "role": "assistant",
+            "content": "Not on the resume — keep that for the cover letter or application form, where 'available for quarterly on-site in Lisbon' reads as enthusiasm rather than clutter. Keep the resume focused on the systems-ownership and eng-collaboration narrative."
+          },
           {
             "role": "user",
             "content": "Makes sense. Let's rewrite my top three bullets around that narrative."
@@ -204,47 +204,46 @@
       "name": "CSS layout question that pivots to an auth bug",
       "description": "Stress pattern: mid-conversation pivot. Coding. Begins with a CSS grid alignment issue, then the user sets it aside for a more serious bug: users getting logged out randomly due to token refresh. Tests focus on the auth thread.",
       "turns": 13,
-      "latencyMs": 5114,
+      "latencyMs": 5130,
       "usage": {
-        "inputTokens": 2175,
-        "outputTokens": 642,
+        "inputTokens": 2378,
+        "outputTokens": 632,
         "cacheReadInputTokens": 0,
         "cacheCreationInputTokens": 0
       },
-      "costUsd": 0.005385,
+      "costUsd": 0.005538,
       "ir": {
         "version": "1",
-        "capturedAt": "2026-06-06T23:47:35.222Z",
+        "capturedAt": "2026-06-07T00:05:59.723Z",
         "source": {
           "platform": "chatgpt",
-          "inferredTopic": "JWT refresh token race condition causing random logouts"
+          "inferredTopic": "JWT refresh token race condition causing logouts"
         },
         "factualState": [
-          "Auth setup: JWT access token with 15-minute expiry, plus refresh token",
-          "Users are being randomly logged out mid-session around the 15-minute mark",
-          "Refresh is triggered reactively on 401 response, not proactively",
-          "Root cause identified: multiple concurrent API requests all receive 401, all simultaneously call /refresh endpoint",
-          "Suspected refresh token rotation behavior: first /refresh invalidates old token, causing subsequent concurrent /refresh calls to fail",
-          "Concurrent /refresh calls cause app to log user out after all refresh attempts fail",
-          "Single-flight refresh pattern is the identified solution"
+          "Random user logouts occurring around 15-minute mark, matching JWT access token expiry time",
+          "Auth setup: JWT access tokens (15-minute expiry) + refresh tokens, reactive refresh on 401",
+          "Root cause identified: concurrent API requests all receive 401, all trigger /refresh simultaneously",
+          "Refresh tokens are being rotated; first /refresh call invalidates the old token",
+          "Concurrent /refresh calls fail with stale/invalid token, causing premature logout",
+          "Decision: implement single-flight refresh queue as primary fix",
+          "Proactive refresh at ~80% of token lifetime identified as optional optimization, not mandatory"
         ],
         "openThreads": [
-          "Implement single-flight refresh queue to handle concurrent 401s safely",
-          "Verify the concurrent-request logout scenario in staging environment after implementation",
-          "Consider proactive refresh (at ~80% of token lifetime) as optional optimization after single-flight fix is in place"
+          "Implement single-flight refresh queue to serialize concurrent 401s and prevent token invalidation race",
+          "Test concurrent-request case in staging environment to verify fix resolves the logout issue"
         ],
         "rejectedPaths": [
           {
-            "tried": "Proactive refresh as the primary solution",
-            "whyFailed": "Does not address the concurrent 401 race condition; single-flight fix is the required correctness fix first"
+            "tried": "Proactive refresh as the primary solution to random logouts",
+            "whyFailed": "Does not address the underlying race condition; concurrent 401s can still occur and hit /refresh simultaneously with stale tokens"
           }
         ],
         "preferences": [
-          "Reactive refresh on 401 is the current approach (no preference stated to switch to proactive-only)"
+          "Test and verify fixes in staging before production deployment"
         ],
         "constraints": [
-          "Access token lifetime is fixed at 15 minutes",
-          "Support tickets are accumulating — issue is high priority"
+          "Access token expiry: 15 minutes",
+          "Must handle reactive 401-based refresh safely with concurrent requests"
         ],
         "lastExchange": [
           {
@@ -267,64 +266,53 @@
       "name": "SaaS pricing model deliberation (no decision reached)",
       "description": "Stress pattern: unresolved ending. Planning/strategy. The team debates per-seat vs usage-based vs tiered pricing and ends with several explicit open questions and no decision. Tests the openThreads layer.",
       "turns": 13,
-      "latencyMs": 10317,
+      "latencyMs": 5836,
       "usage": {
-        "inputTokens": 2168,
-        "outputTokens": 878,
+        "inputTokens": 2371,
+        "outputTokens": 684,
         "cacheReadInputTokens": 0,
         "cacheCreationInputTokens": 0
       },
-      "costUsd": 0.006558,
+      "costUsd": 0.005791,
       "ir": {
         "version": "1",
-        "capturedAt": "2026-06-06T23:47:45.541Z",
+        "capturedAt": "2026-06-07T00:06:05.560Z",
         "source": {
           "platform": "chatgpt",
-          "inferredTopic": "API analytics pricing model selection and go-to-market constraints"
+          "inferredTopic": "API analytics pricing model decision"
         },
         "factualState": [
-          "Product: API analytics sold to engineering teams",
-          "Cost structure: COGS driven by events processed (scales with usage, not seats)",
-          "Current usage signal: data from 6 design partners only, all mid-size, unrepresentative of market",
-          "Usage variance across 6 partners: 8x spread (heaviest to lightest)",
-          "Sales requirement: needs a quotable price to quote on calls with VP of Eng",
-          "Customer feedback: two design partners expressed fear of unpredictable bills with usage-based pricing",
-          "Three pricing models under consideration: per-seat, usage-based, or tiered-by-usage"
+          "Product: API analytics, sold to engineering teams, launching soon",
+          "COGS is driven by events processed (usage), not seats — costs scale with usage",
+          "Design partner data available: 6 accounts, all mid-size, usage variance 8x between heaviest and lightest partners",
+          "No usage distribution data for small or enterprise customer segments",
+          "Sales team wants a clear quotable price for calls; engineering buyers fear unpredictable bills",
+          "Three models under consideration: pure per-seat, usage-based, and tiered-by-usage"
         ],
         "openThreads": [
-          "Decision still needed: optimize for sales simplicity or margin protection at launch",
-          "Need to gather representative usage distribution data across small, mid-size, and enterprise segments before setting tier boundaries",
-          "Resolve tension between sales' need for quotable price and the 8x usage variance that makes a single quoted number misleading",
-          "Clarify whether to launch with single usage-based plan + soft cap and gather data for a quarter, or attempt tiered model at launch"
+          "Align founders on strategic priority: sales simplicity vs. margin protection at launch",
+          "Gather representative usage distribution data across small, mid, and enterprise segments before setting tier boundaries",
+          "Decide whether to launch with tiered plan (requires data-driven thresholds) or usage-based with soft cap (requires tolerance for quote variance)"
         ],
         "rejectedPaths": [
           {
             "tried": "Pure per-seat pricing",
-            "whyFailed": "COGS scales with events processed, not seats; small team with high event volume would be unprofitable"
+            "whyFailed": "Misaligns with cost structure: small teams with high event volume would be unprofitable"
           },
           {
-            "tried": "Single quoted monthly price with usage-based billing underneath",
-            "whyFailed": "8x usage variance across the six partners makes a single number misleading and sales-ineffective"
-          },
-          {
-            "tried": "Setting tiered-by-usage boundaries with current 6-partner data",
-            "whyFailed": "Data is non-representative (all mid-size); boundaries would likely be miscalibrated without small and enterprise signal"
+            "tried": "Single quoted usage-based price across all customers",
+            "whyFailed": "8x variance between partners makes a single number misleading and won't work for VP sales conversations"
           }
         ],
         "preferences": [
-          "Preference for tiered-by-usage model with seat-unlimited within tiers (mentioned as common industry solution)",
-          "Interest in data-driven approach to setting tier boundaries based on real usage distribution"
+          "Pricing model should align with actual cost structure (usage-driven)"
         ],
         "constraints": [
-          "Launch is imminent ('about to launch')",
-          "Can only quote prices that are sales-defensible to VP of Eng buyers",
-          "COGS must be protected; cannot accept unprofitable small-team-high-volume scenarios"
+          "Product is launching soon — timing pressure exists",
+          "COGS scales with usage (events processed), not with seats",
+          "Design partner data is only 6 mid-size accounts; not representative of full market"
         ],
         "lastExchange": [
-          {
-            "role": "user",
-            "content": "It's wide — the heaviest partner uses about 8x the lightest. So a single quoted number would be pretty misleading."
-          },
           {
             "role": "assistant",
             "content": "Then we're genuinely stuck between three unresolved things: you don't have representative usage data to set tiers, sales needs a quotable price, and your 8x variance makes a single number misleading. Those need answers before the model can be chosen."
@@ -341,84 +329,117 @@
       "name": "Brainstorming a novel's ending (left open)",
       "description": "Stress pattern: unresolved ending. Creative brainstorming. The writer and assistant float three possible endings for a novel and the conversation ends with the writer undecided, several threads open. Tests openThreads.",
       "turns": 13,
-      "latencyMs": 6569,
+      "latencyMs": 7695,
       "usage": {
-        "inputTokens": 2173,
-        "outputTokens": 703,
+        "inputTokens": 2376,
+        "outputTokens": 952,
         "cacheReadInputTokens": 0,
         "cacheCreationInputTokens": 0
       },
-      "costUsd": 0.005688,
-      "ir": null,
-      "error": "IR failed schema validation: rejectedPaths.0: Expected object, received string; rejectedPaths.1: Expected object, received string"
+      "costUsd": 0.007136,
+      "ir": {
+        "version": "1",
+        "capturedAt": "2026-06-07T00:06:13.256Z",
+        "source": {
+          "platform": "chatgpt",
+          "inferredTopic": "Literary novel ending: estranged sisters and house sale"
+        },
+        "factualState": [
+          "Novel is literary fiction about two estranged sisters, Mara (younger) and Ines (older), who reunite to sell their late mother's house.",
+          "Sisters have softened but not fully reconciled by final act.",
+          "Central unresolved conflict: Mara wants to keep the house; Ines is in real financial trouble and needs to sell.",
+          "Three structural ending options identified: (1) they sell and part while changed but separate; (2) they find third option like co-ownership/rental to stay connected; (3) sale falls through, forcing them together.",
+          "User is considering an object from the mother's house as a connective motif across any of the three endings.",
+          "Rejected option 2 (co-ownership/rental) because it would require either manufacturing money for Ines or introducing contrivance that undermines realism.",
+          "Option 1 ('sell and part') identified as most literary and honest; requires final small gesture of grace to signal relationship changed."
+        ],
+        "openThreads": [
+          "User has not committed to which of the three structural endings to pursue.",
+          "If choosing option 1 (sell and part), need to identify what small gesture of grace would signal the relationship changed.",
+          "If pursuing object-as-thread motif, need to decide which specific object from mother's house and what it represents.",
+          "How to make option 3 (sale falls through) feel like character choice rather than fate intervention, if user reconsiders it."
+        ],
+        "rejectedPaths": [
+          {
+            "tried": "Third option ending (co-ownership/rental arrangement)",
+            "whyFailed": "Would require either a manufactured windfall for Ines's money problem or deferring her financial need implausibly, both undercutting the realism; also risks reading as tidy bow on messy wound."
+          },
+          {
+            "tried": "Using object-as-thread as the structural ending itself",
+            "whyFailed": "Object is a motif that can layer onto any ending, not an ending structure itself; committing to it before deciding structural shape would conflate two different narrative choices."
+          }
+        ],
+        "preferences": [
+          "Values literary honesty and realism over sentimentality.",
+          "Prefers endings that avoid manufactured solutions or contrivances.",
+          "Interested in small gestures of grace and nuance rather than tidy resolutions.",
+          "Wants characters to choose their ending rather than having fate intervene."
+        ],
+        "constraints": [
+          "Ines is in real financial trouble and realistically cannot defer her money need without a plausible reason.",
+          "Any resolution must avoid feeling like a contrivance or manufactured plot device."
+        ],
+        "lastExchange": [
+          {
+            "role": "user",
+            "content": "But I'm attached to them staying connected somehow. Maybe Mara takes a single object from the house — our mother's something — and that's the thread? I genuinely don't know yet."
+          },
+          {
+            "role": "assistant",
+            "content": "That object-as-thread instinct is strong and could attach to any of the three endings — it's a motif, not an ending. I'd suggest deciding the structural ending (sell/third-option/fall-through) first, then layering the object on top. Right now the structural choice is still open."
+          },
+          {
+            "role": "user",
+            "content": "Yeah, I'm not ready to commit. Let me sit with the three and the object idea and come back to it."
+          }
+        ]
+      }
     },
     {
       "fixtureFile": "07-implicit-email-tone.json",
       "name": "Drafting an email with implicit tone preferences and a deadline",
       "description": "Stress pattern: implicit preferences/constraints. Writing/editing. Through edits the user reveals a preference for short, no-emoji, no-exclamation tone and a hard constraint (must send before Friday's board meeting) without ever labeling them as preferences or constraints. Tests implicit extraction.",
       "turns": 15,
-      "latencyMs": 5929,
+      "latencyMs": 4844,
       "usage": {
-        "inputTokens": 2145,
-        "outputTokens": 669,
+        "inputTokens": 2348,
+        "outputTokens": 563,
         "cacheReadInputTokens": 0,
         "cacheCreationInputTokens": 0
       },
-      "costUsd": 0.00549,
+      "costUsd": 0.005163,
       "ir": {
         "version": "1",
-        "capturedAt": "2026-06-06T23:47:58.044Z",
+        "capturedAt": "2026-06-07T00:06:18.103Z",
         "source": {
           "platform": "chatgpt",
-          "inferredTopic": "v2 launch delay announcement email"
+          "inferredTopic": "Email announcing v2 launch delay to three weeks"
         },
         "factualState": [
-          "v2 launch is being delayed to the week of the 28th",
-          "delay is due to quality issues",
-          "final email text: 'Team — we're moving the v2 launch to the week of the 28th to address quality issues. A full revised timeline follows this week. Thank you for the effort so far.'",
-          "email scheduled to send Thursday afternoon",
-          "board meeting is Friday morning",
-          "revised timeline document still needs to be drafted (dates not finalized yet)"
+          "Final email approved: 'Team — we're moving the v2 launch to the week of the 28th to address quality issues. A full revised timeline follows this week. Thank you for the effort so far.'",
+          "Email will be scheduled for Thursday afternoon",
+          "New v2 launch target: week of the 28th",
+          "Reason for delay: address quality issues",
+          "User will send revised timeline follow-up later this week (pending finalized dates)",
+          "User will field timeline questions in standup meeting rather than via email replies"
         ],
         "openThreads": [
-          "Finalize dates for the revised timeline",
-          "Draft the full revised-timeline follow-up document once dates are confirmed",
-          "Questions will be handled in standup, not in writing"
+          "User needs to finalize specific dates before drafting the revised-timeline follow-up email",
+          "Revised timeline follow-up document needs to be drafted once dates are confirmed"
         ],
-        "rejectedPaths": [
-          {
-            "tried": "Celebratory tone with emojis and multiple exclamation points",
-            "whyFailed": "Tone was inappropriate for announcing a delay; user wanted directness, not celebration"
-          },
-          {
-            "tried": "Vague 'three weeks' phrasing without specific target date",
-            "whyFailed": "User needed the concrete target (week of the 28th) for clarity and board communication"
-          },
-          {
-            "tried": "Longer email with softer language and slower introduction",
-            "whyFailed": "User wanted faster pacing to accommodate scanning/skimming; too much preamble"
-          },
-          {
-            "tried": "Inviting written questions in the email",
-            "whyFailed": "User preferred live standup Q&A to avoid being overwhelmed by email replies"
-          }
-        ],
+        "rejectedPaths": [],
         "preferences": [
-          "Direct, concise tone—get to the point fast",
-          "Informational style without invitation for written responses",
-          "Field questions verbally in standup rather than via email",
-          "No emojis or excessive punctuation in professional announcements"
+          "Direct and concise communication; get to the point fast for busy audiences",
+          "No emojis or excessive exclamation points in professional announcements",
+          "Purely informational tone for written announcements; handle follow-up questions verbally in standup",
+          "Specific dates in announcements rather than relative timeframes"
         ],
         "constraints": [
-          "Email must be sent by Thursday end-of-day (before Friday morning board meeting)",
-          "Team must hear the news from user before it reaches the board",
-          "New launch target: week of the 28th"
+          "Email must go out by Thursday end-of-day to reach team before Friday morning board meeting",
+          "User wants team to hear announcement before informing the board",
+          "Revised timeline details to be provided separately this week"
         ],
         "lastExchange": [
-          {
-            "role": "user",
-            "content": "That's the one. I'll schedule it for Thursday afternoon."
-          },
           {
             "role": "assistant",
             "content": "Sounds good — Thursday afternoon gets it in front of the team well before the Friday board meeting. Want me to draft the revised-timeline follow-up next so it's ready to send this week as promised?"
@@ -435,52 +456,52 @@
       "name": "Picking a date library with unstated constraints",
       "description": "Stress pattern: implicit preferences/constraints. Coding. The user never says 'my constraint is' but implies (a) a hard bundle-size limit the team enforces, (b) a preference for zero new runtime dependencies, and (c) TypeScript-first. Tests whether extraction surfaces implicit preferences/constraints.",
       "turns": 14,
-      "latencyMs": 6828,
+      "latencyMs": 6934,
       "usage": {
-        "inputTokens": 2272,
-        "outputTokens": 831,
+        "inputTokens": 2475,
+        "outputTokens": 880,
         "cacheReadInputTokens": 0,
         "cacheCreationInputTokens": 0
       },
-      "costUsd": 0.006427,
+      "costUsd": 0.006875,
       "ir": {
         "version": "1",
-        "capturedAt": "2026-06-06T23:48:04.874Z",
+        "capturedAt": "2026-06-07T00:06:25.037Z",
         "source": {
           "platform": "chatgpt",
-          "inferredTopic": "Dependency-light date utilities for UTC + timezone display"
+          "inferredTopic": "Replacing moment.js with native date utilities for timezone formatting and date arithmetic"
         },
         "factualState": [
-          "Marketing site lead enforces a 10KB gzipped bundle limit on PRs.",
-          "Timestamps are UTC in the database.",
-          "User needs to add N days to UTC dates (e.g., trial expiry) and display those dates in the viewer's local timezone.",
-          "Team values fully-typed code; half-typed helpers are explicitly unwanted.",
-          "Decision: use native built-ins (Date, Intl.DateTimeFormat) instead of moment.js, date-fns, Day.js, or Luxon.",
-          "DST handling is safe for this use case: arithmetic happens in UTC, conversion to local happens only at display time.",
-          "Will create a typed utils/date.ts module with no external dependencies."
+          "Marketing site lead enforces max 10KB gzipped bundle size on new dependencies.",
+          "moment.js (~70KB+ gzipped) is ruled out due to bundle constraint.",
+          "Application timestamps are stored as UTC in the database.",
+          "Main use case: displaying timestamps in viewer's local timezone and adding N days to dates (e.g., trial expiry).",
+          "Team prefers minimal dependencies — every package adds maintenance burden.",
+          "Codebase requires strict TypeScript typing; half-typed helpers are unacceptable.",
+          "Decision made: use native APIs (Intl.DateTimeFormat for formatting, native Date for arithmetic) with a custom typed utils/date.ts module.",
+          "DST-safe behavior confirmed safe for the use case since all dates are UTC in DB and arithmetic happens in UTC before local display conversion."
         ],
         "openThreads": [
-          "Complete the sketch of utils/date.ts with fully-typed addDays() and formatLocal() functions.",
-          "Determine if additional date utilities beyond addDays and formatLocal are needed."
+          "Sketch/implement the utils/date.ts module with addDays(date: Date, n: number): Date and formatLocal(date: Date, timeZone: string): string functions."
         ],
         "rejectedPaths": [
           {
-            "tried": "moment.js",
-            "whyFailed": "70KB+ gzipped, not tree-shakeable, exceeds the 10KB bundle budget."
+            "tried": "Using moment.js for date parsing, arithmetic, and timezone formatting",
+            "whyFailed": "moment.js is ~70KB+ gzipped and not tree-shakeable, exceeds 10KB bundle budget; also in maintenance mode."
           },
           {
-            "tried": "Relying on library for local timezone formatting",
-            "whyFailed": "Intl.DateTimeFormat is native and free; adding a library for this alone wastes bundle and adds maintenance overhead."
+            "tried": "Using date-fns or Day.js library for timezone formatting",
+            "whyFailed": "Intl.DateTimeFormat handles viewer-local formatting natively with zero bundle cost and zero new dependencies, making a library unnecessary for this specific use case."
           }
         ],
         "preferences": [
-          "Strongly prefers fully-typed TypeScript code.",
-          "Wants to minimize dependencies and bundle size.",
-          "Prefers native platform APIs over third-party packages when viable."
+          "Minimize external dependencies — prefer native platform APIs when feasible.",
+          "Strict TypeScript typing required throughout codebase.",
+          "Tree-shakeable or minimal bundle footprint for any dependency that is kept."
         ],
         "constraints": [
-          "Main bundle must not exceed 10KB gzipped (enforced by marketing site lead).",
-          "All code must be fully typed (half-typed helpers are unacceptable)."
+          "Maximum 10KB gzipped bundle size increase for any new dependency.",
+          "All date timestamps in database are stored as UTC."
         ],
         "lastExchange": [
           {
@@ -507,47 +528,38 @@
       "name": "Choosing a Postgres index type (clean Q&A)",
       "description": "Stress pattern: happy-path baseline. Research. A straightforward, well-resolved technical Q&A that lands on a clear recommendation (GIN index for the JSONB containment query). No pivots, no rejected paths, no open threads.",
       "turns": 12,
-      "latencyMs": 4691,
+      "latencyMs": 4324,
       "usage": {
-        "inputTokens": 2053,
-        "outputTokens": 678,
+        "inputTokens": 2256,
+        "outputTokens": 529,
         "cacheReadInputTokens": 0,
         "cacheCreationInputTokens": 0
       },
-      "costUsd": 0.005443,
+      "costUsd": 0.004901,
       "ir": {
         "version": "1",
-        "capturedAt": "2026-06-06T23:48:09.565Z",
+        "capturedAt": "2026-06-07T00:06:29.363Z",
         "source": {
           "platform": "chatgpt",
-          "inferredTopic": "GIN indexing for JSONB containment queries"
+          "inferredTopic": "GIN indexing strategy for JSONB containment queries"
         },
         "factualState": [
-          "Table: events with JSONB column payload",
-          "Query pattern: containment operator @> only, never key-existence operators (?, ?|, ?&)",
-          "Chosen index: GIN with jsonb_path_ops variant",
-          "Decision: fastupdate setting left on (default)",
-          "Index command: CREATE INDEX ON events USING GIN (payload jsonb_path_ops)",
-          "Workload classification: write-heavy table"
+          "Table has JSONB column `payload` with containment-based filtering using `@>` operator",
+          "Workload is write-heavy",
+          "Queries only use `@>` containment operators, never key-existence operators (?, ?|, ?&)",
+          "Decision: create index with `CREATE INDEX ON events USING GIN (payload jsonb_path_ops);`",
+          "fastupdate setting will be left enabled (default)",
+          "GIN index with jsonb_path_ops is more compact and faster for containment-only queries than standard GIN",
+          "Postgres scans both main index and pending list on reads, ensuring consistency despite buffering"
         ],
         "openThreads": [],
-        "rejectedPaths": [
-          {
-            "tried": "Plain B-tree index",
-            "whyFailed": "B-tree does not support JSONB containment operator @>"
-          },
-          {
-            "tried": "Standard GIN without jsonb_path_ops",
-            "whyFailed": "Not rejected, but suboptimal for containment-only workload; jsonb_path_ops is more compact and faster for @> queries"
-          }
-        ],
+        "rejectedPaths": [],
         "preferences": [
-          "Use jsonb_path_ops GIN variant for containment-only workloads",
-          "Rely on default fastupdate setting rather than custom tuning (unless flush pauses become noticeable)"
+          "Optimize for containment queries over other JSONB operations"
         ],
         "constraints": [
-          "Write-heavy table; index overhead must be minimized",
-          "Query pattern limited to @> containment only"
+          "Table is write-heavy, so index overhead must be minimized",
+          "Only containment (@>) queries are used; key-existence operators are not supported"
         ],
         "lastExchange": [
           {
@@ -574,53 +586,43 @@
       "name": "Outlining a blog post (collaborative, resolved)",
       "description": "Stress pattern: happy-path baseline. Writing/editing. A clean collaborative session that produces a finished outline for a blog post about onboarding remote engineers. No pivots, rejected paths, or open threads.",
       "turns": 13,
-      "latencyMs": 5688,
+      "latencyMs": 10799,
       "usage": {
-        "inputTokens": 2175,
-        "outputTokens": 735,
+        "inputTokens": 2378,
+        "outputTokens": 703,
         "cacheReadInputTokens": 0,
         "cacheCreationInputTokens": 0
       },
-      "costUsd": 0.00585,
+      "costUsd": 0.005893,
       "ir": {
         "version": "1",
-        "capturedAt": "2026-06-06T23:48:15.255Z",
+        "capturedAt": "2026-06-07T00:06:40.161Z",
         "source": {
           "platform": "chatgpt",
           "inferredTopic": "Blog post outline: 30-day remote engineer onboarding"
         },
         "factualState": [
-          "Blog post topic: how we onboard remote engineers in their first 30 days",
+          "Blog topic: how the company onboards remote engineers in their first 30 days",
           "Target audience: engineering managers at other startups",
-          "Hook metric: before 5 weeks to first PR, now 8 days",
-          "Core principle: structure beats osmosis",
-          "Final outline has 7 sections: hook, principle, week 1, weeks 2-3, week 4, metrics dashboard, takeaways",
-          "Metrics are woven into each week section plus consolidated in section 6",
-          "Week 1 metric: time-to-first-PR",
-          "Weeks 2-3 metric: first feature shipped",
-          "Week 4 metric: 30-day confidence survey"
+          "Structure model agreed: problem → system → specifics → outcomes",
+          "Opening hook uses real company metrics: remote hires used to take 5 weeks to ship first meaningful PR, now take 8 days",
+          "Final outline: (1) Hook with 5 weeks → 8 days stat, (2) Structure beats osmosis principle, (3) Week 1 section with time-to-first-PR metric, (4) Weeks 2–3 section with first feature shipped metric, (5) Week 4 section with 30-day confidence survey metric, (6) Consolidated metrics dashboard, (7) Takeaways for managers",
+          "Metrics are woven into each week's section plus consolidated in a separate dashboard section at the end",
+          "User is ready to start drafting from the outline"
         ],
         "openThreads": [
-          "User will now draft the blog post from the finalized outline"
+          "Blog post draft needs to be written from the finalized outline"
         ],
-        "rejectedPaths": [
-          {
-            "tried": "Opening section 1 with a generic hook about the cost of bad remote onboarding",
-            "whyFailed": "User feedback that it felt generic; concrete data (before/after metric) was preferred to draw attention"
-          },
-          {
-            "tried": "Keeping metrics section (section 6) as a standalone section at the end",
-            "whyFailed": "User noted managers care about metrics and wanted them visible earlier; weaving metric callouts into each week section was preferred"
-          }
-        ],
+        "rejectedPaths": [],
         "preferences": [
-          "Problem → system → specifics → outcomes structure",
-          "Concrete numbers and metrics over generic language",
-          "Metrics woven throughout the narrative rather than siloed at the end"
+          "Opening with concrete before/after numbers rather than generic hooks",
+          "Metrics woven throughout sections rather than isolated in one place",
+          "Clear, structured section organization with principle + week-by-week breakdown"
         ],
         "constraints": [
-          "30-day onboarding window is the scope",
-          "Must speak to engineering managers at startups"
+          "Blog post must be relevant and useful for engineering managers at startup companies",
+          "Content must address remote onboarding specifically, focused on first 30 days",
+          "Must use real company metrics (5 weeks before, 8 days after) as opening hook"
         ],
         "lastExchange": [
           {

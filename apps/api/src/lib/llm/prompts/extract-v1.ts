@@ -2,7 +2,13 @@ import type Anthropic from '@anthropic-ai/sdk';
 import type { Platform } from '@team-ai-memory/shared';
 
 /**
- * Extraction prompt v1.
+ * Extraction prompt v1.1.
+ *
+ * v1.1 (from the M1-T04 baseline eval): hardened the rejectedPaths guidance so
+ * each item is always a {tried, whyFailed} object (never a bare string) and so
+ * only genuinely tried-and-abandoned approaches qualify (not discussed
+ * alternatives or refinement iterations); added a factualState-vs-constraints
+ * distinction.
  *
  * Targets the five context layers from the team spec (factual state, open
  * threads, rejected paths, preferences, constraints) plus `lastExchange` for
@@ -32,12 +38,13 @@ Extract these layers:
 - inferredTopic: a short (3–8 word) description of what this conversation was about. Concrete and specific, not generic.
 - factualState: the established facts and the current state of the work — decisions made, things built or agreed, values/names/identifiers that matter. Each item one self-contained statement.
 - openThreads: unresolved questions, pending decisions, and concrete next steps still in play. What a teammate would need to act on next.
-- rejectedPaths: approaches that were tried and abandoned. For each, record what was tried and why it failed, so the teammate doesn't repeat it.
+- rejectedPaths: approaches that were genuinely tried and then abandoned, so the teammate doesn't repeat them. Each item MUST be an object with exactly two string fields — \`tried\` (the approach that was attempted) and \`whyFailed\` (why it didn't work) — never a plain string. Only include something that was actually attempted and then rejected for a stated or clearly-implied reason. Do NOT include: alternatives that were merely discussed or compared, options considered but never seriously tried, or successive iterations/edits of the same approach as it was refined — none of those are rejected paths. If nothing was tried and abandoned, return an empty array.
 - preferences: stated preferences the user expressed — tools, libraries, style, conventions, ways of working.
 - constraints: hard requirements, limits, deadlines, or non-negotiables that govern the work.
 - lastExchange: the final up to 4 turns of the conversation, verbatim, in chronological order (oldest first), so the handoff has immediate context for where the thread left off.
 
 Rules:
+- factualState vs constraints: factualState is what has happened or been established (past and current state); constraints are rules, limits, or requirements that govern future work. If something is a rule the teammate must follow going forward, it belongs in constraints, not factualState.
 - Preserve specifics: names, numbers, versions, file paths, error messages, decisions. These are what make the memory useful.
 - Do not invent or infer beyond what the conversation supports. If a layer has nothing, return an empty array for it — never fabricate filler.
 - Be concise. Each array item is a single fact or thread, not a paragraph.
@@ -76,7 +83,8 @@ export function getExtractionTool(): Anthropic.Tool {
         },
         rejectedPaths: {
           type: 'array',
-          description: 'Approaches that were tried and abandoned, each with why it failed.',
+          description:
+            'Approaches genuinely tried and then abandoned (NOT alternatives merely discussed, options never tried, or iterations of the same approach). Each item is an object with string fields `tried` and `whyFailed`. Empty array if nothing was tried and abandoned.',
           items: {
             type: 'object',
             properties: {
