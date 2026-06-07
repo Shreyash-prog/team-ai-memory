@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import type { Env } from './env';
 import { extractRouter } from './routes/extract';
+import { artifactsRouter } from './routes/artifacts';
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -9,5 +10,6 @@ app.get('/health', (c) =>
 );
 
 app.route('/extract', extractRouter);
+app.route('/artifacts', artifactsRouter);
 
 export default app;
